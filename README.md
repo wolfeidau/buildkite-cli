@@ -1,4 +1,4 @@
-# bk [![Build Status](http://img.shields.io/travis/wolfeidau/buildkite-cli.svg?style=flat-square)][travis]
+# bk [![Build Status](https://travis-ci.org/wolfeidau/buildkite-cli.svg)](https://travis-ci.org/wolfeidau/buildkite-cli)
 
 A simple command line interface to the [buildkite](http://buildkite.com) service.
 
