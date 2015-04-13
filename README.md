@@ -2,10 +2,12 @@
 
 A simple command line interface to the [buildkite](http://buildkite.com) service.
 
+![ScreenShot](/docs/buildkite-cli-builds.gif)
+
 # usage
 
 ```
-usage: bk [<flags>] <command> [<flags>] [<args> ...]
+usage: bk <command> [<flags>] [<args> ...]
 
 A command-line interface for buildkite.com.
 
@@ -16,8 +18,17 @@ Commands:
   help [<command>]
     Show help for a command.
 
-  list <account>
-    List projects under an account.
+  projects
+    List projects under an orginization.
+
+  builds
+    List latest builds for the current project.
+
+  open
+    Open buildkite project in your browser for the current project.
+
+  setup
+    Configure the buildkite cli with a new token.
 
 ```
 
