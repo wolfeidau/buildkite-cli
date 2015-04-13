@@ -13,10 +13,12 @@ import (
 	bk "github.com/wolfeidau/go-buildkite/buildkite"
 )
 
-var projectColumns = []string{"ID", "NAME", "BUILD", "BRANCH", "MESSAGE", "STATE", "FINISHED"}
-var buildColumns = []string{"PROJECT", "NUMBER", "BRANCH", "MESSAGE", "STATE", "COMMIT"}
+var (
+	projectColumns = []string{"ID", "NAME", "BUILD", "BRANCH", "MESSAGE", "STATE", "FINISHED"}
+	buildColumns   = []string{"PROJECT", "NUMBER", "BRANCH", "MESSAGE", "STATE", "COMMIT"}
 
-var projectOrgRegex = regexp.MustCompile(`\/organizations\/([\w_-]+)\/`)
+	projectOrgRegex = regexp.MustCompile(`\/organizations\/([\w_-]+)\/`)
+)
 
 // BkCli manages the config and state for the buildkite cli
 type bkCli struct {
