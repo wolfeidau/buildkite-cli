@@ -18,7 +18,9 @@ var (
 )
 
 func main() {
+
 	kingpin.Version(Version)
+
 	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
 	case projects.FullCommand():
 		kingpin.FatalIfError(commands.ProjectList(*quiet), "List projects failed")
@@ -28,6 +30,8 @@ func main() {
 		kingpin.FatalIfError(commands.Open(), "Open failed")
 	case setup.FullCommand():
 		kingpin.FatalIfError(commands.Setup(), "Setup failed")
+	default:
+		kingpin.UsageErrorf("missing sub command.")
 	}
 
 }
