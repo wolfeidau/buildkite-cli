@@ -25,7 +25,7 @@ Commands:
     List latest builds for the current project.
 
   open
-    Open buildkite project in your browser for the current project.
+    Open builds list in your browser for the current project.
 
   setup
     Configure the buildkite cli with a new token.

@@ -13,7 +13,7 @@ var (
 
 	projects = app.Command("projects", "List projects under an orginization.")
 	builds   = app.Command("builds", "List latest builds for the current project.")
-	open     = app.Command("open", "Open buildkite project in your browser for the current project.")
+	open     = app.Command("open", "Open builds list in your browser for the current project.")
 	setup    = app.Command("setup", "Configure the buildkite cli with a new token.")
 )
 
