@@ -7,7 +7,9 @@ import (
 
 	table "github.com/crackcomm/go-clitable"
 	"github.com/github/hub/cmd"
-	"github.com/github/hub/utils"
+	"github.com/wolfeidau/buildkite-cli/config"
+	"github.com/wolfeidau/buildkite-cli/git"
+	"github.com/wolfeidau/buildkite-cli/utils"
 	bk "github.com/wolfeidau/go-buildkite/buildkite"
 )
 
@@ -18,13 +20,13 @@ var projectOrgRegex = regexp.MustCompile(`\/organizations\/([\w_-]+)\/`)
 
 // BkCli manages the config and state for the buildkite cli
 type bkCli struct {
-	config *Config
+	config *config.Config
 	client *bk.Client
 }
 
 // NewBkCli configure the buildkite cli using the supplied config
 func newBkCli() (*bkCli, error) {
-	config := CurrentConfig()
+	config := config.CurrentConfig()
 
 	client, err := newClient(config)
 
@@ -58,9 +60,9 @@ func (cli *bkCli) projectList(quietList bool) error {
 
 	for _, proj := range projects {
 		if proj.FeaturedBuild != nil {
-			vals = toMap(projectColumns, []interface{}{*proj.ID, *proj.Name, *proj.FeaturedBuild.Number, *proj.FeaturedBuild.Branch, *proj.FeaturedBuild.Message, *proj.FeaturedBuild.State, *proj.FeaturedBuild.FinishedAt})
+			vals = utils.ToMap(projectColumns, []interface{}{*proj.ID, *proj.Name, *proj.FeaturedBuild.Number, *proj.FeaturedBuild.Branch, *proj.FeaturedBuild.Message, *proj.FeaturedBuild.State, *proj.FeaturedBuild.FinishedAt})
 		} else {
-			vals = toMap(projectColumns, []interface{}{*proj.ID, *proj.Name, 0, "", "", "", ""})
+			vals = utils.ToMap(projectColumns, []interface{}{*proj.ID, *proj.Name, 0, "", "", "", ""})
 		}
 		tb.AddRow(vals)
 	}
@@ -89,7 +91,7 @@ func (cli *bkCli) buildList(quietList bool) error {
 	}
 
 	// did we locate a project
-	project := LocateProject(projects)
+	project := git.LocateProject(projects)
 
 	if project != nil {
 		fmt.Printf("Listing for project = %s\n\n", *project.Name)
@@ -117,7 +119,7 @@ func (cli *bkCli) buildList(quietList bool) error {
 	tb := table.New(buildColumns)
 
 	for _, build := range builds {
-		vals := toMap(buildColumns, []interface{}{*build.Project.Name, *build.Number, *build.Branch, *build.Message, *build.State, *build.Commit})
+		vals := utils.ToMap(buildColumns, []interface{}{*build.Project.Name, *build.Number, *build.Branch, *build.Message, *build.State, *build.Commit})
 		tb.AddRow(vals)
 	}
 
@@ -138,7 +140,7 @@ func (cli *bkCli) openProjectBuilds() error {
 	}
 
 	// did we locate a project
-	project := LocateProject(projects)
+	project := git.LocateProject(projects)
 
 	if project != nil {
 		fmt.Printf("Opening project = %s\n\n", *project.Name)
@@ -193,7 +195,7 @@ func (cli *bkCli) listProjects() ([]bk.Project, error) {
 	return projects, nil
 }
 
-func newClient(config *Config) (*bk.Client, error) {
+func newClient(config *config.Config) (*bk.Client, error) {
 
 	if config.OAuthToken == "" {
 		err := config.PromptForConfig()

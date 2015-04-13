@@ -7,6 +7,9 @@ import (
 	"os/exec"
 	"runtime"
 	"strings"
+
+	"github.com/github/hub/utils"
+	"github.com/mattn/go-isatty"
 )
 
 // Check simple error assertion which exits the app
@@ -23,6 +26,25 @@ func Printf(format string, a ...interface{}) (n int, err error) {
 
 func Println(a ...interface{}) (n int, err error) {
 	return fmt.Fprintln(os.Stdout, a...)
+}
+
+func ToMap(columns []string, values []interface{}) map[string]interface{} {
+
+	m := make(map[string]interface{})
+
+	if len(columns) != len(values) {
+		utils.Check(fmt.Errorf("Miss match in columns and values"))
+	}
+
+	for i, c := range columns {
+		m[c] = values[i]
+	}
+
+	return m
+}
+
+func IsTerminal(fd uintptr) bool {
+	return isatty.IsTerminal(fd)
 }
 
 func BrowserLauncher() ([]string, error) {
