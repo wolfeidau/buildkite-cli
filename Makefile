@@ -8,7 +8,7 @@ deps:
 	echo $(DEPS) | xargs -n1 go get -d
 
 build:
-	go build -o bin/bk
+	go install
 
 test: deps
 	go list ./... | xargs -n1 go test -timeout=3s
