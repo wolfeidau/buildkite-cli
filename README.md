@@ -1,4 +1,4 @@
-# bk [![Build Status](https://travis-ci.org/wolfeidau/buildkite-cli.svg)](https://travis-ci.org/wolfeidau/buildkite-cli)
+# bk
 
 A simple command line interface to the [buildkite](http://buildkite.com) service.
 
@@ -11,8 +11,6 @@ A command-line interface for buildkite.com.
 
 Flags:
   --help  Show help.
-  --creds="~/.buildkite"  
-          Credentials file.
 
 Commands:
   help [<command>]
