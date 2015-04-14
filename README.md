@@ -9,7 +9,7 @@ A simple command line interface to the [buildkite](http://buildkite.com) service
 At the moment installation is done just using the go get command.
 
 ```
-go get github.com/wolfeidau/buildkite-cli/cmd/bk
+go get github.com/wolfeidau/buildkite-cli/cmds/bk
 ```
 
 # usage
