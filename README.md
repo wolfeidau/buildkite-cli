@@ -40,6 +40,12 @@ Commands:
 
 ```
 
+# TODO
+
+* Truncate commit message text.
+* Fix usage output as it is confusing.
+* Help the user create the correct type of token using the changes which enable defaulting stuff in the new token page with the various scopes.
+
 # buildkite API notes
 
 * Would be nice to have access to the orginization slug in the project(s) results as it is critical for building URLs relating to associated content.
