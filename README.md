@@ -45,6 +45,7 @@ Commands:
 * Truncate commit message text.
 * Fix usage output as it is confusing.
 * Help the user create the correct type of token using the changes which enable defaulting stuff in the new token page with the various scopes.
+* Deal with https://github.com vs git@github.com: remotes.
 
 # buildkite API notes
 
