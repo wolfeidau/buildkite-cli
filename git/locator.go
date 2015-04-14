@@ -7,11 +7,17 @@ import (
 	bk "github.com/wolfeidau/go-buildkite/buildkite"
 )
 
+var git GitCmd
+
+func init() {
+	git = &gitCmd{}
+}
+
 // LocateProject the project which represents the current director.
 func LocateProject(projects []bk.Project) *bk.Project {
 
 	// git dem remotes
-	remotes, err := Remotes()
+	remotes, err := git.Remotes()
 
 	if err != nil {
 		return nil
@@ -28,8 +34,14 @@ func LocateProject(projects []bk.Project) *bk.Project {
 	return nil
 }
 
+type GitCmd interface {
+	Remotes() ([]string, error)
+}
+
+type gitCmd struct{}
+
 // Remotes locate the remotes for the current project
-func Remotes() ([]string, error) {
+func (*gitCmd) Remotes() ([]string, error) {
 	return gitOutput("remote", "-v")
 }
 
