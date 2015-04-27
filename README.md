@@ -32,6 +32,9 @@ Commands:
   builds
     List latest builds for the current project.
 
+  logs [<number>]
+    Retrieve the logs for the current projects last build.
+
   open
     Open builds list in your browser for the current project.
 
@@ -39,6 +42,11 @@ Commands:
     Configure the buildkite cli with a new token.
 
 ```
+
+Navigate to a project hosted in build box and run:
+
+* `bk builds` - This will show you a list of the recent builds for this project.
+* `bk logs` - This will show you the logs for the last build/job which ran against this project.
 
 # TODO
 
