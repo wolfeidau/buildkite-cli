@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"bytes"
 	"fmt"
 	"regexp"
 	"time"
@@ -171,6 +172,74 @@ func (cli *bkCli) openProjectBuilds() error {
 	return err
 }
 
+func (cli *bkCli) tailLogs(number string) error {
+
+	projects, err := cli.listProjects()
+
+	if err != nil {
+		return err
+	}
+
+	// did we locate a project
+	project := git.LocateProject(projects)
+
+	if project != nil {
+		fmt.Printf("Opening project = %s\n\n", *project.Name)
+
+	} else {
+		utils.Check(fmt.Errorf("Failed to locate the buildkite project using git.")) // TODO tidy this up
+		return nil
+	}
+
+	if number == "" {
+
+		if project.FeaturedBuild != nil {
+			number = fmt.Sprintf("%d", *project.FeaturedBuild.Number)
+		}
+
+	}
+
+	ok, j := cli.getLastJob(project, number)
+	if ok {
+		req, err := cli.client.NewRequest("GET", *j.RawLogsURL, nil)
+
+		if err != nil {
+			return err
+		}
+		buffer := new(bytes.Buffer)
+
+		_, err = cli.client.Do(req, buffer)
+
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("%s\n", string(buffer.Bytes()))
+	}
+
+	return nil
+}
+
+func (cli *bkCli) getLastJob(project *bk.Project, number string) (bool, *bk.Job) {
+	org := extractOrg(*project.URL)
+
+	build, _, err := cli.client.Builds.Get(org, *project.Slug, number)
+
+	if err != nil {
+		return false, nil
+	}
+
+	jobs := build.Jobs
+
+	if len(jobs) == 0 {
+		return false, nil
+	}
+
+	j := jobs[len(jobs)-1]
+
+	return true, j
+}
+
 func (cli *bkCli) setup() error {
 	return cli.config.PromptForConfig()
 }
@@ -233,6 +302,16 @@ func BuildsList(quietList bool) error {
 	}
 
 	return cli.buildList(quietList)
+}
+
+// LogsList retrieve the logs for the last build using the supplied build number
+func LogsList(number string) error {
+	cli, err := newBkCli()
+	if err != nil {
+		return err
+	}
+
+	return cli.tailLogs(number)
 }
 
 // Open buildkite project for the current project using the git remote to locate it.

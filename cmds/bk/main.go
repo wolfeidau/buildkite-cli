@@ -11,10 +11,12 @@ var (
 	app   = kingpin.New("bk", "A command-line interface for buildkite.com.")
 	quiet = kingpin.Flag("quiet", "Only display numeric IDs").Bool()
 
-	projects = app.Command("projects", "List projects under an orginization.")
-	builds   = app.Command("builds", "List latest builds for the current project.")
-	open     = app.Command("open", "Open builds list in your browser for the current project.")
-	setup    = app.Command("setup", "Configure the buildkite cli with a new token.")
+	projects    = app.Command("projects", "List projects under an orginization.")
+	builds      = app.Command("builds", "List latest builds for the current project.")
+	logs        = app.Command("logs", "Retrieve the logs for the current projects last build.")
+	buildNumber = logs.Arg("number", "supply a build number to retrieve the logs for.").Default("").String()
+	open        = app.Command("open", "Open builds list in your browser for the current project.")
+	setup       = app.Command("setup", "Configure the buildkite cli with a new token.")
 )
 
 func main() {
@@ -26,6 +28,8 @@ func main() {
 		kingpin.FatalIfError(commands.ProjectList(*quiet), "List projects failed")
 	case builds.FullCommand():
 		kingpin.FatalIfError(commands.BuildsList(*quiet), "List builds failed")
+	case logs.FullCommand():
+		kingpin.FatalIfError(commands.LogsList(*buildNumber), "List builds failed")
 	case open.FullCommand():
 		kingpin.FatalIfError(commands.Open(), "Open failed")
 	case setup.FullCommand():
