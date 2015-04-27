@@ -25,9 +25,13 @@ func LocateProject(projects []bk.Project) *bk.Project {
 
 	for _, p := range projects {
 		for _, r := range remotes {
-			if strings.Contains(r, *p.Repository) {
-				return &p
+			if ok, gitRepo := GitRemoteMatch(r); ok {
+				s := gitRepo.String()
+				if strings.Contains(*p.Repository, s) {
+					return &p
+				}
 			}
+
 		}
 	}
 
