@@ -16,6 +16,7 @@ import (
 
 var (
 	projectColumns = []string{"ID", "NAME", "BUILD", "BRANCH", "MESSAGE", "STATE", "FINISHED"}
+	jobColumns     = []string{"NAME", "STARTED", "FINISHED", "STATE"}
 	buildColumns   = []string{"PROJECT", "NUMBER", "BRANCH", "MESSAGE", "STATE", "COMMIT"}
 
 	projectOrgRegex = regexp.MustCompile(`\/organizations\/([\w_-]+)\/`)
@@ -155,7 +156,7 @@ func (cli *bkCli) openProjectBuilds() error {
 
 	org := extractOrg(*project.URL)
 
-	projectURL := fmt.Sprintf("https://buildkite.com/%s/%s/builds", org, *project.Slug) // TODO URL should come from REST interface
+	projectURL := fmt.Sprintf("https://buildkite.com/%s/%s/builds/last", org, *project.Slug) // TODO URL should come from REST interface
 
 	args, err := utils.BrowserLauncher()
 
@@ -201,6 +202,16 @@ func (cli *bkCli) tailLogs(number string) error {
 
 	ok, j := cli.getLastJob(project, number)
 	if ok {
+
+		tb := table.New(jobColumns)
+
+		vals := utils.ToMap(jobColumns, []interface{}{*j.Name, *j.StartedAt, *j.FinishedAt, *j.State})
+		tb.AddRow(vals)
+		tb.Markdown = true
+		tb.Print()
+
+		fmt.Println()
+
 		req, err := cli.client.NewRequest("GET", *j.RawLogsURL, nil)
 
 		if err != nil {
