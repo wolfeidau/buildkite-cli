@@ -286,7 +286,7 @@ func newClient(config *config.Config) (*bk.Client, error) {
 		}
 	}
 
-	tconf, err := bk.NewTokenConfig(config.OAuthToken)
+	tconf, err := bk.NewTokenConfig(config.OAuthToken, config.Debug)
 
 	if err != nil {
 		return nil, err

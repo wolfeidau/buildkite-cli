@@ -38,6 +38,7 @@ func init() {
 type Config struct {
 	OAuthToken   string `yaml:"oauth_token"`
 	Orginization string `yaml:"orginization"`
+	Debug        bool   `yaml:"debug"`
 }
 
 func (c *Config) PromptForConfig() (err error) {
