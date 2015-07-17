@@ -3,13 +3,15 @@ package main
 import (
 	"os"
 
+	"github.com/alecthomas/kingpin"
 	"github.com/wolfeidau/buildkite-cli/commands"
-	"gopkg.in/alecthomas/kingpin.v1"
+	bk "github.com/wolfeidau/go-buildkite/buildkite"
 )
 
 var (
-	app   = kingpin.New("bk", "A command-line interface for buildkite.com.")
-	quiet = kingpin.Flag("quiet", "Only display numeric IDs").Bool()
+	app       = kingpin.New("bk", "A command-line interface for buildkite.com.")
+	quiet     = app.Flag("quiet", "Only display numeric IDs").Bool()
+	debugHTTP = app.Flag("debug-http", "Display detailed HTTP debugging").Bool()
 
 	projects    = app.Command("projects", "List projects under an orginization.")
 	builds      = app.Command("builds", "List latest builds for the current project.")
@@ -25,6 +27,7 @@ func main() {
 
 	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
 	case projects.FullCommand():
+		bk.SetHttpDebug(*debugHTTP)
 		kingpin.FatalIfError(commands.ProjectList(*quiet), "List projects failed")
 	case builds.FullCommand():
 		kingpin.FatalIfError(commands.BuildsList(*quiet), "List builds failed")
@@ -35,7 +38,7 @@ func main() {
 	case setup.FullCommand():
 		kingpin.FatalIfError(commands.Setup(), "Setup failed")
 	default:
-		kingpin.UsageErrorf("missing sub command.")
+		kingpin.Errorf("missing sub command.")
 	}
 
 }

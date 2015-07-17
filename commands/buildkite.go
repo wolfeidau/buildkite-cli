@@ -64,7 +64,8 @@ func (cli *bkCli) projectList(quietList bool) error {
 
 	for _, proj := range projects {
 		if proj.FeaturedBuild != nil {
-			vals = utils.ToMap(projectColumns, []interface{}{*proj.ID, *proj.Name, *proj.FeaturedBuild.Number, *proj.FeaturedBuild.Branch, *proj.FeaturedBuild.Message, *proj.FeaturedBuild.State, *proj.FeaturedBuild.FinishedAt})
+			fb := proj.FeaturedBuild
+			vals = utils.ToMap(projectColumns, []interface{}{*proj.ID, *proj.Name, *fb.Number, toString(fb.Branch), toString(fb.Message), toString(fb.State), valString(fb.FinishedAt)})
 		} else {
 			vals = utils.ToMap(projectColumns, []interface{}{*proj.ID, *proj.Name, 0, "", "", "", ""})
 		}
@@ -353,4 +354,15 @@ func extractOrg(url string) string {
 	}
 
 	return ""
+}
+
+func toString(str *string) string {
+	return *str
+}
+
+func valString(thing interface{}) string {
+	if thing == nil {
+		return ""
+	}
+	return fmt.Sprintf("%s", thing)
 }
