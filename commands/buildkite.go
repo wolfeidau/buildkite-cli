@@ -15,11 +15,11 @@ import (
 )
 
 var (
-	projectColumns = []string{"ID", "NAME", "BUILD", "BRANCH", "MESSAGE", "STATE", "FINISHED"}
+	pipelineColumns = []string{"ID", "NAME", "BUILD", "BRANCH", "MESSAGE", "STATE", "FINISHED"}
 	jobColumns     = []string{"NAME", "STARTED", "FINISHED", "STATE"}
 	buildColumns   = []string{"PROJECT", "NUMBER", "BRANCH", "MESSAGE", "STATE", "COMMIT"}
 
-	projectOrgRegex = regexp.MustCompile(`\/organizations\/([\w_-]+)\/`)
+	pipelineOrgRegex = regexp.MustCompile(`\/organizations\/([\w_-]+)\/`)
 )
 
 // BkCli manages the config and state for the buildkite cli
@@ -41,34 +41,29 @@ func newBkCli() (*bkCli, error) {
 	return &bkCli{config, client}, nil
 }
 
-// Get List of Projects for all the orginizations.
-func (cli *bkCli) projectList(quietList bool) error {
+// Get List of Pipelines for all the orginizations.
+func (cli *bkCli) pipelineList(quietList bool) error {
 
 	t := time.Now()
 
-	projects, err := cli.listProjects()
+	pipelines, err := cli.listPipelines()
 
 	if err != nil {
 		return err
 	}
 
 	if quietList {
-		for _, proj := range projects {
+		for _, proj := range pipelines {
 			fmt.Printf("%-36s\n", *proj.ID)
 		}
 		return nil // we are done
 	}
 
-	tb := table.New(projectColumns)
+	tb := table.New(pipelineColumns)
 	vals := make(map[string]interface{})
 
-	for _, proj := range projects {
-		if proj.FeaturedBuild != nil {
-			fb := proj.FeaturedBuild
-			vals = utils.ToMap(projectColumns, []interface{}{*proj.ID, *proj.Name, *fb.Number, toString(fb.Branch), toString(fb.Message), toString(fb.State), valString(fb.FinishedAt)})
-		} else {
-			vals = utils.ToMap(projectColumns, []interface{}{*proj.ID, *proj.Name, 0, "", "", "", ""})
-		}
+	for _, proj := range pipelines {
+		vals = utils.ToMap(pipelineColumns, []interface{}{*proj.ID, *proj.Name, 0, "", "", "", ""})
 		tb.AddRow(vals)
 	}
 	tb.Markdown = true
@@ -89,24 +84,24 @@ func (cli *bkCli) buildList(quietList bool) error {
 
 	t := time.Now()
 
-	projects, err := cli.listProjects()
+	pipelines, err := cli.listPipelines()
 
 	if err != nil {
 		return err
 	}
 
-	// did we locate a project
-	project := git.LocateProject(projects)
+	// did we locate a pipeline
+	pipeline := git.LocatePipeline(pipelines)
 
-	if project != nil {
-		fmt.Printf("Listing for project = %s\n\n", *project.Name)
+	if pipeline != nil {
+		fmt.Printf("Listing for pipeline = %s\n\n", *pipeline.Name)
 
-		org := extractOrg(*project.URL)
+		org := extractOrg(*pipeline.URL)
 
-		builds, _, err = cli.client.Builds.ListByProject(org, *project.Slug, nil)
+		builds, _, err = cli.client.Builds.ListByPipeline(org, *pipeline.Slug, nil)
 
 	} else {
-		utils.Check(fmt.Errorf("Failed to locate the buildkite project using git.")) // TODO tidy this up
+		utils.Check(fmt.Errorf("Failed to locate the buildkite pipeline using git.")) // TODO tidy this up
 		return nil
 	}
 
@@ -124,7 +119,7 @@ func (cli *bkCli) buildList(quietList bool) error {
 	tb := table.New(buildColumns)
 
 	for _, build := range builds {
-		vals := utils.ToMap(buildColumns, []interface{}{*build.Project.Name, *build.Number, *build.Branch, *build.Message, *build.State, *build.Commit})
+		vals := utils.ToMap(buildColumns, []interface{}{*build.Pipeline.Name, *build.Number, *build.Branch, *build.Message, *build.State, *build.Commit})
 		tb.AddRow(vals)
 	}
 
@@ -136,28 +131,28 @@ func (cli *bkCli) buildList(quietList bool) error {
 	return nil
 }
 
-func (cli *bkCli) openProjectBuilds() error {
+func (cli *bkCli) openPipelineBuilds() error {
 
-	projects, err := cli.listProjects()
+	pipelines, err := cli.listPipelines()
 
 	if err != nil {
 		return err
 	}
 
-	// did we locate a project
-	project := git.LocateProject(projects)
+	// did we locate a pipeline
+	pipeline := git.LocatePipeline(pipelines)
 
-	if project != nil {
-		fmt.Printf("Opening project = %s\n\n", *project.Name)
+	if pipeline != nil {
+		fmt.Printf("Opening pipeline = %s\n\n", *pipeline.Name)
 
 	} else {
-		utils.Check(fmt.Errorf("Failed to locate the buildkite project using git.")) // TODO tidy this up
+		utils.Check(fmt.Errorf("Failed to locate the buildkite pipeline using git.")) // TODO tidy this up
 		return nil
 	}
 
-	org := extractOrg(*project.URL)
+	org := extractOrg(*pipeline.URL)
 
-	projectURL := fmt.Sprintf("https://buildkite.com/%s/%s/builds/last", org, *project.Slug) // TODO URL should come from REST interface
+	pipelineURL := fmt.Sprintf("https://buildkite.com/%s/%s/builds/last", org, *pipeline.Slug) // TODO URL should come from REST interface
 
 	args, err := utils.BrowserLauncher()
 
@@ -165,7 +160,7 @@ func (cli *bkCli) openProjectBuilds() error {
 
 	cmd := cmd.New(args[0])
 
-	args = append(args, projectURL)
+	args = append(args, pipelineURL)
 
 	cmd.WithArgs(args[1:]...)
 
@@ -176,32 +171,28 @@ func (cli *bkCli) openProjectBuilds() error {
 
 func (cli *bkCli) tailLogs(number string) error {
 
-	projects, err := cli.listProjects()
+	pipelines, err := cli.listPipelines()
 
 	if err != nil {
 		return err
 	}
 
-	// did we locate a project
-	project := git.LocateProject(projects)
+	// did we locate a pipeline
+	pipeline := git.LocatePipeline(pipelines)
 
-	if project != nil {
-		fmt.Printf("Opening project = %s\n\n", *project.Name)
+	if pipeline != nil {
+		fmt.Printf("Opening pipeline = %s\n\n", *pipeline.Name)
 
 	} else {
-		utils.Check(fmt.Errorf("Failed to locate the buildkite project using git.")) // TODO tidy this up
+		utils.Check(fmt.Errorf("Failed to locate the buildkite pipeline using git.")) // TODO tidy this up
 		return nil
 	}
 
 	if number == "" {
 
-		if project.FeaturedBuild != nil {
-			number = fmt.Sprintf("%d", *project.FeaturedBuild.Number)
-		}
-
 	}
 
-	ok, j := cli.getLastJob(project, number)
+	ok, j := cli.getLastJob(pipeline, number)
 	if ok {
 
 		tb := table.New(jobColumns)
@@ -232,10 +223,10 @@ func (cli *bkCli) tailLogs(number string) error {
 	return nil
 }
 
-func (cli *bkCli) getLastJob(project *bk.Project, number string) (bool, *bk.Job) {
-	org := extractOrg(*project.URL)
+func (cli *bkCli) getLastJob(pipeline *bk.Pipeline, number string) (bool, *bk.Job) {
+	org := extractOrg(*pipeline.URL)
 
-	build, _, err := cli.client.Builds.Get(org, *project.Slug, number)
+	build, _, err := cli.client.Builds.Get(org, *pipeline.Slug, number)
 
 	if err != nil {
 		return false, nil
@@ -256,8 +247,8 @@ func (cli *bkCli) setup() error {
 	return cli.config.PromptForConfig()
 }
 
-func (cli *bkCli) listProjects() ([]bk.Project, error) {
-	var projects []bk.Project
+func (cli *bkCli) listPipelines() ([]bk.Pipeline, error) {
+	var pipelines []bk.Pipeline
 
 	orgs, _, err := cli.client.Organizations.List(nil)
 
@@ -266,16 +257,16 @@ func (cli *bkCli) listProjects() ([]bk.Project, error) {
 	}
 
 	for _, org := range orgs {
-		projs, _, err := cli.client.Projects.List(*org.Slug, nil)
+		projs, _, err := cli.client.Pipelines.List(*org.Slug, nil)
 
 		if err != nil {
 			return nil, err
 		}
 
-		projects = append(projects, projs...)
+		pipelines = append(pipelines, projs...)
 	}
 
-	return projects, nil
+	return pipelines, nil
 }
 
 func newClient(config *config.Config) (*bk.Client, error) {
@@ -296,17 +287,17 @@ func newClient(config *config.Config) (*bk.Client, error) {
 	return bk.NewClient(tconf.Client()), nil
 }
 
-// ProjectList just get a list of projects
-func ProjectList(quietList bool) error {
+// PipelineList just get a list of pipelines
+func PipelineList(quietList bool) error {
 	cli, err := newBkCli()
 	if err != nil {
 		return err
 	}
 
-	return cli.projectList(quietList)
+	return cli.pipelineList(quietList)
 }
 
-// BuildsList retrieve a list of builds for the current project using the git remote to locate it.
+// BuildsList retrieve a list of builds for the current pipeline using the git remote to locate it.
 func BuildsList(quietList bool) error {
 	cli, err := newBkCli()
 	if err != nil {
@@ -326,14 +317,14 @@ func LogsList(number string) error {
 	return cli.tailLogs(number)
 }
 
-// Open buildkite project for the current project using the git remote to locate it.
+// Open buildkite pipeline for the current pipeline using the git remote to locate it.
 func Open() error {
 	cli, err := newBkCli()
 	if err != nil {
 		return err
 	}
 
-	return cli.openProjectBuilds()
+	return cli.openPipelineBuilds()
 }
 
 // Setup configure the buildkite cli with a new token.
@@ -347,7 +338,7 @@ func Setup() error {
 }
 
 func extractOrg(url string) string {
-	m := projectOrgRegex.FindStringSubmatch(url)
+	m := pipelineOrgRegex.FindStringSubmatch(url)
 
 	if len(m) == 2 {
 		return m[1]

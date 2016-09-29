@@ -13,11 +13,11 @@ var (
 	quiet     = app.Flag("quiet", "Only display numeric IDs").Bool()
 	debugHTTP = app.Flag("debug-http", "Display detailed HTTP debugging").Bool()
 
-	projects    = app.Command("projects", "List projects under an orginization.")
-	builds      = app.Command("builds", "List latest builds for the current project.")
-	logs        = app.Command("logs", "Retrieve the logs for the current projects last build.")
+	pipelines    = app.Command("pipelines", "List pipelines under an orginization.")
+	builds      = app.Command("builds", "List latest builds for the current pipeline.")
+	logs        = app.Command("logs", "Retrieve the logs for the current pipelines last build.")
 	buildNumber = logs.Arg("number", "supply a build number to retrieve the logs for.").Default("").String()
-	open        = app.Command("open", "Open builds list in your browser for the current project.")
+	open        = app.Command("open", "Open builds list in your browser for the current pipeline.")
 	setup       = app.Command("setup", "Configure the buildkite cli with a new token.")
 )
 
@@ -26,9 +26,9 @@ func main() {
 	kingpin.Version(Version)
 
 	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
-	case projects.FullCommand():
+	case pipelines.FullCommand():
 		bk.SetHttpDebug(*debugHTTP)
-		kingpin.FatalIfError(commands.ProjectList(*quiet), "List projects failed")
+		kingpin.FatalIfError(commands.PipelineList(*quiet), "List pipelines failed")
 	case builds.FullCommand():
 		kingpin.FatalIfError(commands.BuildsList(*quiet), "List builds failed")
 	case logs.FullCommand():
