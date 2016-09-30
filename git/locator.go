@@ -3,8 +3,8 @@ package git
 import (
 	"strings"
 
+	bk "github.com/buildkite/go-buildkite/buildkite"
 	"github.com/github/hub/cmd"
-	bk "github.com/wolfeidau/go-buildkite/buildkite"
 )
 
 var git GitCmd

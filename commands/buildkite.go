@@ -6,18 +6,18 @@ import (
 	"regexp"
 	"time"
 
+	bk "github.com/buildkite/go-buildkite/buildkite"
 	table "github.com/crackcomm/go-clitable"
 	"github.com/github/hub/cmd"
 	"github.com/wolfeidau/buildkite-cli/config"
 	"github.com/wolfeidau/buildkite-cli/git"
 	"github.com/wolfeidau/buildkite-cli/utils"
-	bk "github.com/wolfeidau/go-buildkite/buildkite"
 )
 
 var (
 	pipelineColumns = []string{"ID", "NAME", "BUILD", "BRANCH", "MESSAGE", "STATE", "FINISHED"}
-	jobColumns     = []string{"NAME", "STARTED", "FINISHED", "STATE"}
-	buildColumns   = []string{"PROJECT", "NUMBER", "BRANCH", "MESSAGE", "STATE", "COMMIT"}
+	jobColumns      = []string{"NAME", "STARTED", "FINISHED", "STATE"}
+	buildColumns    = []string{"PROJECT", "NUMBER", "BRANCH", "MESSAGE", "STATE", "COMMIT"}
 
 	pipelineOrgRegex = regexp.MustCompile(`\/organizations\/([\w_-]+)\/`)
 )
