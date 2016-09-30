@@ -3,8 +3,8 @@ package git
 import (
 	"strings"
 
+	bk "github.com/buildkite/go-buildkite/buildkite"
 	"github.com/github/hub/cmd"
-	bk "github.com/wolfeidau/go-buildkite/buildkite"
 )
 
 var git GitCmd
@@ -13,8 +13,8 @@ func init() {
 	git = &gitCmd{}
 }
 
-// LocateProject the project which represents the current director.
-func LocateProject(projects []bk.Project) *bk.Project {
+// LocatePipeline the pipeline which represents the current director.
+func LocatePipeline(pipelines []bk.Pipeline) *bk.Pipeline {
 
 	// git dem remotes
 	remotes, err := git.Remotes()
@@ -23,7 +23,7 @@ func LocateProject(projects []bk.Project) *bk.Project {
 		return nil
 	}
 
-	for _, p := range projects {
+	for _, p := range pipelines {
 		for _, r := range remotes {
 			if ok, gitRepo := GitRemoteMatch(r); ok {
 				s := gitRepo.String()
@@ -44,7 +44,7 @@ type GitCmd interface {
 
 type gitCmd struct{}
 
-// Remotes locate the remotes for the current project
+// Remotes locate the remotes for the current pipeline
 func (*gitCmd) Remotes() ([]string, error) {
 	return gitOutput("remote", "-v")
 }

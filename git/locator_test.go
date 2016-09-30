@@ -19,30 +19,30 @@ func setupMockCmd(result []string) {
 	git = &mockGitCmd{result}
 }
 
-func TestLocateProject(t *testing.T) {
+func TestLocatePipeline(t *testing.T) {
 
 	data := []struct {
 		input    []string
-		projects []bk.Project
-		want     *bk.Project
+		pipelines []bk.Pipeline
+		want     *bk.Pipeline
 	}{
 		{
 			[]string{"origin	git@github.com:wolfeidau/go-buildkite.git (fetch)"},
-			[]bk.Project{
-				bk.Project{ID: bk.String("123"), Repository: bk.String("git@github.com:wolfeidau/go-buildkite.git")},
-				bk.Project{ID: bk.String("345"), Repository: bk.String("git@github.com:wolfeidau/someother.git")},
+			[]bk.Pipeline{
+				bk.Pipeline{ID: bk.String("123"), Repository: bk.String("git@github.com:wolfeidau/go-buildkite.git")},
+				bk.Pipeline{ID: bk.String("345"), Repository: bk.String("git@github.com:wolfeidau/someother.git")},
 			},
-			&bk.Project{ID: bk.String("123"), Repository: bk.String("git@github.com:wolfeidau/go-buildkite.git")},
+			&bk.Pipeline{ID: bk.String("123"), Repository: bk.String("git@github.com:wolfeidau/go-buildkite.git")},
 		},
 	}
 
 	for _, d := range data {
 		setupMockCmd(d.input)
 
-		p := LocateProject(d.projects)
+		p := LocatePipeline(d.pipelines)
 
 		if !reflect.DeepEqual(p, d.want) {
-			t.Errorf("LocateProject returned %+v, want %+v", p, d.want)
+			t.Errorf("LocatePipeline returned %+v, want %+v", p, d.want)
 		}
 	}
 
